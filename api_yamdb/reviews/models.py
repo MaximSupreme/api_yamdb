@@ -8,7 +8,7 @@ from reviews.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
 
 class Genre(models.Model):
     name = models.CharField(
-        verbose_name='Название',
+        verbose_name='Жанр',
         max_length=MAX_STRING_CHAR
     )
     slug = models.SlugField(
@@ -22,7 +22,7 @@ class Genre(models.Model):
 
 class Category(models.Model):
     name = models.CharField(
-        verbose_name='Название',
+        verbose_name='Категория',
         max_length=MAX_STRING_CHAR
     )
     slug = models.SlugField(
@@ -36,7 +36,7 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        verbose_name='Название',
+        verbose_name='Заголовок',
         max_length=MAX_STRING_CHAR
     )
     year = models.PositiveSmallIntegerField(
@@ -58,13 +58,13 @@ class Title(models.Model):
         blank=True
     )
     genre = models.ManyToManyField(
-        verbose_name='Жанры',
+        verbose_name='Жанр',
         to=Genre,
         through='TitleGenre',
         related_name='Произведение',
     )
     category = models.ForeignKey(
-        verbose_name='Категории',
+        verbose_name='Категория',
         to=Category,
         on_delete=models.CASCADE,
         related_name='Произведение'
