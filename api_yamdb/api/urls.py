@@ -25,10 +25,14 @@ router_v1.register(
 
 urls = [
     path('', include(router_v1.urls)),
-    # тут нужно будет добавить пути для работы с юзерами
+]
+
+auth_patterns = [
+    path('signup/', CustomUserViewSet.as_view({'post': 'signup'}), name='signup'),
+    path('token/', CustomUserViewSet.as_view({'post': 'token'}), name='token'),
 ]
 
 urlpatterns = [
     path('v1/', include(urls)),
-    path('auth/token/', TokenObtainPairView().as_view(), name='token_obtain_pair'),
+    path('v1/auth/', include(auth_patterns)),
 ]
