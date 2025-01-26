@@ -1,9 +1,10 @@
+import re
 import secrets
 import string
-import re
-from rest_framework import serializers
+
 from django.conf import settings
 from django.core.mail import send_mail
+from rest_framework import serializers
 
 
 def customed_send_mail(email, confirmation_code):
@@ -15,11 +16,11 @@ def customed_send_mail(email, confirmation_code):
         fail_silently=False,
     )
 
-def generate_confirmation_code():
+def confirmation_code_generator():
     code = string.ascii_letters + string.digits
     return ''.join(secrets.choice(code) for _ in range(40))
 
-def validate_username(value):
+def username_validator(value):
     if not re.match(r'^[\w.@+-]+$', value):
         raise serializers.ValidationError(
             '''Имя пользователя может содержать только буквы, 

@@ -1,25 +1,28 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-)
 
-import api.views as views
+from .views import (CategoryViewset, GenreViewset, TitleViewset)
+from user.views import CustomUserViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register(
+    'users',
+    CustomUserViewSet,
+    basename='users'
+)
+router_v1.register(
     'titles',
-    viewset=views.TitleViewset,
+    TitleViewset,
     basename='titles'
 )
 router_v1.register(
     'categories',
-    viewset=views.CategoryViewset,
+    CategoryViewset,
     basename='categories'
 )
 router_v1.register(
     'genres',
-    viewset=views.GenreViewset,
+    GenreViewset,
     basename='genre'
 )
 
