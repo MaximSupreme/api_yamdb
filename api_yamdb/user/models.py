@@ -1,10 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from api.constants import (
-    MAX_STRING_CHAR, ROLE_USER, ROLES,
-    MAX_LENGTH_FIRST_LAST_AND_USERNAME, ROLE_ADMIN, ROLE_MODERATOR
-)
+from api.constants import (MAX_LENGTH_FIRST_LAST_AND_USERNAME, MAX_STRING_CHAR,
+                        ROLE_ADMIN, ROLE_MODERATOR, ROLE_USER, ROLES)
 
 
 class CustomUser(AbstractUser):

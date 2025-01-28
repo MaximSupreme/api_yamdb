@@ -113,15 +113,40 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
-        user, _ = CustomUser.objects.get_or_create(
-            username=username,
-            email=email
-        )
-        confirmation_code = confirmation_code_generator()
-        user.confirmation_code = confirmation_code
-        user.save()
-        customed_send_mail(email, confirmation_code)
-        return Response(serializer.data, status=HTTPStatus.OK)
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.username == username:
+                confirmation_code = confirmation_code_generator()
+                user.confirmation_code = confirmation_code
+                user.save()
+                customed_send_mail(email, confirmation_code)
+                return Response(serializer.data, status=HTTPStatus.OK)
+            else:
+                return Response(
+                    {'detail': 'User with that email is already exists. '
+                            'Check your entered username.'},
+                    status=HTTPStatus.BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            try:
+                user = CustomUser.objects.get(username=username)
+                if user.email == email:
+                    confirmation_code = confirmation_code_generator()
+                    user.confirmation_code = confirmation_code
+                    user.save()
+                    customed_send_mail(email, confirmation_code)
+                    return Response(serializer.data, status=HTTPStatus.OK)
+                else:
+                    return Response(
+                        {'detail': 'User with that username is already exists. '
+                                'Check your entered email.'},
+                        status=HTTPStatus.BAD_REQUEST)
+            except CustomUser.DoesNotExist:
+                user = CustomUser.objects.create(username=username, email=email)
+                confirmation_code = confirmation_code_generator()
+                user.confirmation_code = confirmation_code
+                user.save()
+                customed_send_mail(email, confirmation_code)
+                return Response(serializer.data, status=HTTPStatus.OK)
 
     @action(detail=False, methods=['post'])
     def token(self, request):

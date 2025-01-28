@@ -23,11 +23,11 @@ def confirmation_code_generator():
 def username_validator(value):
     if not re.match(r'^[\w.@+-]+$', value):
         raise serializers.ValidationError(
-            '''Имя пользователя может содержать только буквы, 
-            цифры и знаки @/./+/-/_'''
+            '''Username can only contain letters, 
+            numbers and signs @/./+/-/_'''
         )
     if value.lower() == 'me':
         raise serializers.ValidationError(
-            'Имя пользователя "me" не разрешено'
+            'Username "me" is not allowed.'
         )
     return value
