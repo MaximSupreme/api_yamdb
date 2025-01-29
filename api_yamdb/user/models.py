@@ -7,25 +7,27 @@ from api.constants import (MAX_LENGTH_FIRST_LAST_AND_USERNAME, MAX_STRING_CHAR,
 
 class CustomUser(AbstractUser):
     username = models.CharField(
-        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME, unique=True
+        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME, unique=True,
+        verbose_name='Имя пользователя'
     )
     email = models.EmailField(
-        max_length=MAX_STRING_CHAR, unique=True
+        max_length=MAX_STRING_CHAR, unique=True, verbose_name='Почта'
     )
     first_name = models.CharField(
-        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME
+        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME, verbose_name='Имя'
     )
     last_name = models.CharField(
-        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME
+        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME, verbose_name='Фамилия'
     )
     bio = models.CharField(
-        max_length=MAX_STRING_CHAR
+        max_length=MAX_STRING_CHAR, verbose_name='Биография'
     )
     role = models.CharField(
-        max_length=60, choices=ROLES, default=ROLE_USER
+        max_length=60, choices=ROLES, default=ROLE_USER, verbose_name='Роль'
     )
     confirmation_code = models.CharField(
-        max_length=MAX_STRING_CHAR, blank=True, null=True
+        max_length=MAX_STRING_CHAR, blank=True, null=True,
+        verbose_name='Код подтверждения'
     )
 
     REQUIRED_FIELDS = ('email',)

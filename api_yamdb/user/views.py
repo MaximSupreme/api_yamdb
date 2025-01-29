@@ -16,10 +16,7 @@ from .utils import confirmation_code_generator, customed_send_mail
 CustomUser = get_user_model()
 
 class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -67,30 +64,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_queryset(self):
-        queryset = CustomUser.objects.all().order_by('username')
+        queryset = CustomUser.objects.all()
         search = self.request.query_params.get('search', None)
-        if search is not None:
+        if search:
+        # if search is not None:
             queryset = queryset.filter(username__icontains=search)
         return queryset
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=HTTPStatus.NO_CONTENT)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data,
-            status=HTTPStatus.CREATED,
-            headers=headers
-        )
-
-    def perform_create(self, serializer):
-        serializer.save()
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)

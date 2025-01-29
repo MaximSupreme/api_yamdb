@@ -9,10 +9,22 @@
 
 
 
+## BACKEND STACK:
+
+- _Languages: **Python**._
+- _Frameworks: **Django**, **Django REST framework**._
+- _Databases: **SQLite**._
+
+
+
 ## LOCAL DEPLOYATION:
 
 **To deploy this project on your computer:**
 - _Clone this repository to your ***working directory***._
+- _Create a virtual environment:_
+```bash
+python(3) -m (venv name) venv
+```
 - _Install requirements through pip:_
 ```bash
 pip install -r requirements.txt
