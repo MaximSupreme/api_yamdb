@@ -1,33 +1,41 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-import api.views as views
+from api.views import (CategoryViewset, GenreViewset, TitleViewset)
+from user.views import CustomUserViewSet
 
 router_v1 = DefaultRouter()
 router_v1.register(
+    'users',
+    CustomUserViewSet,
+    basename='users'
+)
+router_v1.register(
     'titles',
-    viewset=views.TitleViewset,
+    TitleViewset,
     basename='titles'
 )
 router_v1.register(
     'categories',
-    viewset=views.CategoryViewset,
+    CategoryViewset,
     basename='categories'
 )
 router_v1.register(
     'genres',
-    viewset=views.GenreViewset,
+    GenreViewset,
     basename='genre'
 )
 
 urls = [
     path('', include(router_v1.urls)),
-    # тут нужно будет добавить пути для работы с юзерами
 ]
 
-'''Такой финт ушами со списом юрл нужен для корректного ведения учета версий
-внутри приложения api, а не за его пределами'''
+auth_patterns = [
+    path('signup/', CustomUserViewSet.as_view({'post': 'signup'}), name='signup'),
+    path('token/', CustomUserViewSet.as_view({'post': 'token'}), name='token'),
+]
 
 urlpatterns = [
     path('v1/', include(urls)),
+    path('v1/auth/', include(auth_patterns)),
 ]

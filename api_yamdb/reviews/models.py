@@ -3,7 +3,7 @@ from datetime import datetime as dt
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from reviews.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
+from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
 
 
 class Genre(models.Model):
