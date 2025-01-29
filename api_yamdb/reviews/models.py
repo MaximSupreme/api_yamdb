@@ -13,7 +13,8 @@ class Genre(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=MAX_SLUG_CHAR
+        max_length=MAX_SLUG_CHAR,
+        unique=True
     )
 
     def __str__(self):
@@ -27,7 +28,8 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=MAX_SLUG_CHAR
+        max_length=MAX_SLUG_CHAR,
+        unique=True
     )
 
     def __str__(self):
