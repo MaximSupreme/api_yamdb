@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from api.constants import (MAX_LENGTH_FIRST_LAST_AND_USERNAME, MAX_STRING_CHAR,
-                        ROLE_ADMIN, ROLE_MODERATOR, ROLE_USER, ROLES)
+                           ROLE_ADMIN, ROLE_MODERATOR, ROLE_USER, ROLES)
 
 
 class CustomUser(AbstractUser):
@@ -34,7 +34,7 @@ class CustomUser(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
-    
+
     @property
     def is_admin(self):
         return self.role == ROLE_ADMIN or self.is_superuser

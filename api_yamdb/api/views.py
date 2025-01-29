@@ -59,10 +59,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = get_object_or_404(models.Review,
                                    id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)
-
-    @action(detail=True, methods=['put'], url_path='update',
-            permission_classes=[permissions.IsAdminUser])
-    def not_allowed_update(self, request, *args, **kwargs):
-        return Response(
-            {'detail': 'PUT method is not allowed on this resource.'},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED)
