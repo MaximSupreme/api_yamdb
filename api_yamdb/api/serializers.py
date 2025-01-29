@@ -1,76 +1,70 @@
-from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from django.core.validators import MaxValueValidator, MinValueValidator
 
-import reviews.models as models
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = models.Category
-        exclude = ('id',)
+        exclude = ['id']
+        model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = models.Genre
-        exclude = ('id',)
+        exclude = ['id']
+        model = Genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = models.Title
-        fields = '__all__'
-
-    def create(self, validated_data):
-        category, status = models.Category.objects.get_or_create(
-            **validated_data.pop('category')
-        )
-        title = models.Title.objects.create(
-            **validated_data,
-            category=category
-        )
-
-        genres = validated_data.pop('genres')
-        for genre in genres:
-            current_genre, status = models.Genre.objects.get_or_create(**genre)
-            models.TitleGenre.objects.create(
-                title=title, genre=current_genre
-            )
+        fields = ['id', 'name', 'rating', 'genre', 'category', 'year']
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.StringRelatedField()
-    author = serializers.StringRelatedField()
-    score = serializers.IntegerField()
-    pub_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
-
-    class Meta:
-        model = models.Review
-        fields = ('title', 'author', 'score', 'pub_date', 'text')
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+    score = serializers.IntegerField(
+        validators=[
+            MinValueValidator(1, message='Оценка должна быть не ниже 1'),
+            MaxValueValidator(10, message='Оценка должна быть не выше 10')
+        ]
+    )
+    title = serializers.PrimaryKeyRelatedField(read_only=True)
 
     def validate(self, value):
-        request = self.context['request']
-        author = request.user
-        title_id = request.parser_context['kwargs'].get('title_id')
-
-        title = get_object_or_404(models.Title, id=title_id)
-
-        if request.method == 'POST' and title.reviews.filter(
-                author=author).exists():
+        author = self.context['request'].user
+        title_id = (self.context['request'].
+                    parser_context['kwargs'].get('title_id'))
+        title = get_object_or_404(
+            Title,
+            id=title_id
+        )
+        if (self.context['request'].method == 'POST'
+                and title.reviews.filter(author=author).exists()):
             raise serializers.ValidationError(
-                f'Отзыв на "{title.name}" был добавлен ранее'
+                f'Отзыв на произведение {title.name} уже существует'
             )
-
         return value
 
-    def validate_score(self, value):
-        if not (1 <= value <= 10):
-            raise serializers.ValidationError(
-                "Оценка должна быть между 1 и 10.")
-        return value
+    def create(self, validated_data):
+        review = super().create(validated_data)
+        review.title.update_rating()
+        return review
+
+    class Meta:
+        fields = '__all__'
+        model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -81,5 +75,5 @@ class CommentSerializer(serializers.ModelSerializer):
     review = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
-        fields = ('author', 'review', 'text', 'pub_date')
-        model = models.Comment
+        fields = '__all__'
+        model = Comment
