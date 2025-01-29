@@ -16,10 +16,7 @@ from .utils import confirmation_code_generator, customed_send_mail
 CustomUser = get_user_model()
 
 class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (IsAdmin,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -67,30 +64,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_queryset(self):
-        queryset = CustomUser.objects.all().order_by('username')
+        queryset = CustomUser.objects.all()
         search = self.request.query_params.get('search', None)
-        if search is not None:
+        if search:
+        # if search is not None:
             queryset = queryset.filter(username__icontains=search)
         return queryset
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=HTTPStatus.NO_CONTENT)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data,
-            status=HTTPStatus.CREATED,
-            headers=headers
-        )
-
-    def perform_create(self, serializer):
-        serializer.save()
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -113,15 +92,40 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
-        user, _ = CustomUser.objects.get_or_create(
-            username=username,
-            email=email
-        )
-        confirmation_code = confirmation_code_generator()
-        user.confirmation_code = confirmation_code
-        user.save()
-        customed_send_mail(email, confirmation_code)
-        return Response(serializer.data, status=HTTPStatus.OK)
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.username == username:
+                confirmation_code = confirmation_code_generator()
+                user.confirmation_code = confirmation_code
+                user.save()
+                customed_send_mail(email, confirmation_code)
+                return Response(serializer.data, status=HTTPStatus.OK)
+            else:
+                return Response(
+                    {'detail': 'User with that email is already exists. '
+                            'Check your entered username.'},
+                    status=HTTPStatus.BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            try:
+                user = CustomUser.objects.get(username=username)
+                if user.email == email:
+                    confirmation_code = confirmation_code_generator()
+                    user.confirmation_code = confirmation_code
+                    user.save()
+                    customed_send_mail(email, confirmation_code)
+                    return Response(serializer.data, status=HTTPStatus.OK)
+                else:
+                    return Response(
+                        {'detail': 'User with that username is already exists. '
+                                'Check your entered email.'},
+                        status=HTTPStatus.BAD_REQUEST)
+            except CustomUser.DoesNotExist:
+                user = CustomUser.objects.create(username=username, email=email)
+                confirmation_code = confirmation_code_generator()
+                user.confirmation_code = confirmation_code
+                user.save()
+                customed_send_mail(email, confirmation_code)
+                return Response(serializer.data, status=HTTPStatus.OK)
 
     @action(detail=False, methods=['post'])
     def token(self, request):
