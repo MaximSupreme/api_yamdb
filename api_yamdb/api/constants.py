@@ -1,0 +1,14 @@
+MAX_STRING_CHAR = 254
+MAX_SLUG_CHAR = 50
+MAX_LENGTH_FIRST_LAST_AND_USERNAME = 150
+
+ROLE_USER = 'user'
+ROLE_MODERATOR = 'moderator'
+ROLE_ADMIN = 'admin'
+
+
+ROLES = (
+    (ROLE_USER, 'User'),
+    (ROLE_MODERATOR, 'Moderator'),
+    (ROLE_ADMIN, 'Admin'),
+)
