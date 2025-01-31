@@ -135,7 +135,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                         'detail': (
                             'User with that email is already exists. '
                             'Check your entered username.'
-                            )
+                        )
                     },
                     status=HTTPStatus.BAD_REQUEST
                 )
