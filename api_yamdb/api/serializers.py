@@ -1,6 +1,6 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
@@ -60,9 +60,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(
         validators=[
             MinValueValidator(
-                1, message='The score must be at least 1'),
+                1, message='The score must be at least 1!'),
             MaxValueValidator(
-                10, message='The score should not be higher than 10')
+                10, message='The score should not be higher than 10!')
         ]
     )
     title = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -78,7 +78,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if (self.context['request'].method == 'POST'
                 and title.reviews.filter(author=author).exists()):
             raise serializers.ValidationError(
-                f'A review of {title.name} is already exists.'
+                f'A review of {title.name} is already exists!'
             )
         return value
 

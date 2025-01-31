@@ -2,10 +2,10 @@ from datetime import datetime as dt
 
 from django.core.validators import MaxValueValidator
 from django.db import models
-from user.models import CustomUser
 from django.db.models import Avg
 
 from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
+from user.models import CustomUser
 
 
 class Genre(models.Model):
@@ -89,7 +89,9 @@ class Title(models.Model):
     def update_rating(self):
         reviews = self.reviews.all()
         if reviews.exists():
-            avg_rating = reviews.aggregate(Avg('score'))['score__avg']
+            avg_rating = reviews.aggregate(
+                Avg('score')
+            )['score__avg']
             self.rating = avg_rating
             self.save()
 
@@ -142,8 +144,9 @@ class Review(models.Model):
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
         constraints = [
-            models.UniqueConstraint(fields=['author', 'title'],
-                                    name='unique_review')
+            models.UniqueConstraint(
+                fields=['author', 'title'], name='unique_review'
+            )
         ]
 
     def __str__(self):

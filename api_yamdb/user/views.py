@@ -8,10 +8,17 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .permissions import IsAdmin
-from .serializers import (AdminUserSerializer, CustomUserSerializer,
-                        TokenSerializer, UserRegistrationSerializer)
-from .utils import confirmation_code_generator, customed_send_mail
+from user.permissions import IsAdmin
+from user.serializers import (
+    AdminUserSerializer,
+    CustomUserSerializer,
+    TokenSerializer,
+    UserRegistrationSerializer
+)
+from user.utils import (
+    confirmation_code_generator, customed_send_mail
+)
+
 
 CustomUser = get_user_model()
 

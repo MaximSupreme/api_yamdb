@@ -2,10 +2,11 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from api.constants import (MAX_LENGTH_FIRST_LAST_AND_USERNAME, MAX_STRING_CHAR,
-                        ROLE_USER, ROLES)
-
-from .utils import username_validator
+from api.constants import (
+    MAX_LENGTH_FIRST_LAST_AND_USERNAME,
+    MAX_STRING_CHAR, ROLE_USER, ROLES
+)
+from user.utils import username_validator
 
 CustomUser = get_user_model()
 
@@ -26,7 +27,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise serializers.ValidationError('Username "me" is not allowed')
+            raise serializers.ValidationError(
+                'Username "me" is not allowed'
+            )
         return value
 
 
@@ -41,11 +44,12 @@ class AdminUserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME,
         required=True,
-        validators=[username_validator,
-                    UniqueValidator(
-                        queryset=CustomUser.objects.all(),
-                        message='User with that username is already exists!')
-                    ]
+        validators=[
+            username_validator, UniqueValidator(
+                queryset=CustomUser.objects.all(),
+                message='User with that username is already exists!'
+            )
+        ]
     )
     first_name = serializers.CharField(
         max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME,
@@ -59,15 +63,21 @@ class AdminUserSerializer(serializers.ModelSerializer):
         max_length=MAX_STRING_CHAR,
         required=False
     )
-    role = serializers.ChoiceField(choices=ROLES, default=ROLE_USER, required=False)
+    role = serializers.ChoiceField(
+        choices=ROLES, default=ROLE_USER, required=False
+    )
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
 
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME)
+    username = serializers.CharField(
+        max_length=MAX_LENGTH_FIRST_LAST_AND_USERNAME
+    )
     confirmation_code = serializers.CharField()
 
     def validate_username(self, value):
