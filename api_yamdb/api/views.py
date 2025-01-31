@@ -1,11 +1,13 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from .filters import TitleFilter
 
-from .permissions import IsAdminModeratorAuthorOrReadOnly
+from .permissions import IsAdminModeratorAuthorOrReadOnly, IsAdminUserOrReadOnly
 from user.permissions import IsAdminOrReadOnly
 import api.serializers as serializers
 import reviews.models as models
@@ -13,25 +15,25 @@ from api.viewsets import ListCreateDeleteViewset
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = models.Title.objects.all().order_by('name')
+    queryset = models.Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('rating')
     serializer_class = serializers.TitleSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = [IsAdminUserOrReadOnly]
+    #pagination_class = LimitOffsetPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
 
-    def update(self, request, *args, **kwargs):
-        if request.method == 'PUT':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        category = get_object_or_404(
+            models.Category, slug=self.request.data.get('category')
+        )
+        genre = models.Genre.objects.filter(
+            slug__in=self.request.data.getlist('genre')
+        )
+        serializer.save(category=category, genre=genre)
 
+    def perform_update(self, serializer):
+        self.perform_create(serializer)
 
 class GenreViewSet(ListCreateDeleteViewset):
     queryset = models.Genre.objects.all()

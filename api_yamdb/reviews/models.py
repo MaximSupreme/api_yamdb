@@ -15,7 +15,8 @@ class Genre(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=MAX_SLUG_CHAR
+        max_length=MAX_SLUG_CHAR,
+        unique=True
     )
 
     class Meta:
@@ -33,10 +34,12 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=MAX_SLUG_CHAR
+        max_length=MAX_SLUG_CHAR,
+        unique=True,
     )
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -60,6 +63,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         verbose_name='Жанр',
         to=Genre,
+        blank=True,
         through='TitleGenre',
         related_name='произведения',
     )
@@ -68,10 +72,10 @@ class Title(models.Model):
         null=True,
         blank=True
     )
-    rating = models.DecimalField(
-        verbose_name='Рейтинг',
-        max_digits=3, decimal_places=1, null=True, blank=True
-    )
+    # rating = models.DecimalField(
+    #     verbose_name='Рейтинг',
+    #     max_digits=3, decimal_places=1, null=True, blank=True
+    # )
     category = models.ForeignKey(
         verbose_name='Категория',
         to=Category,
@@ -84,6 +88,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+        ordering = ['name']
 
     def update_rating(self):
         reviews = self.reviews.all()

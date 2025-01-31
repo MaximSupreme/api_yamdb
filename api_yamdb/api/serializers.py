@@ -10,14 +10,17 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ['id']
         model = Category
-    
+
     def validate_slug(self, value):
         if self.instance:
-            if Category.objects.filter(slug=value).exclude(id=self.instance.id).exists():
-                raise serializers.ValidationError('Category with that slug is already exists!')
+            if (Category.objects.filter(slug=value)
+                    .exclude(id=self.instance.id).exists()):
+                raise serializers.ValidationError(
+                    'Category with that slug is already exists!')
         else:
             if Category.objects.filter(slug=value).exists():
-                    raise serializers.ValidationError('Category with that slug is already exists!')
+                    raise serializers.ValidationError(
+                        'Category with that slug is already exists!')
         return value
 
 
@@ -26,14 +29,17 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ['id']
         model = Genre
-        
+
     def validate_slug(self, value):
         if self.instance:
-            if Genre.objects.filter(slug=value).exclude(id=self.instance.id).exists():
-                raise serializers.ValidationError('Genre with that slug is already exists!')
+            if (Genre.objects.filter(slug=value)
+                    .exclude(id=self.instance.id).exists()):
+                raise serializers.ValidationError(
+                    'Genre with that slug is already exists!')
         else:
             if Genre.objects.filter(slug=value).exists():
-                raise serializers.ValidationError('Genre with that slug is already exists!')
+                raise serializers.ValidationError(
+                    'Genre with that slug is already exists!')
         return value
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -41,25 +47,8 @@ class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.FloatField(read_only=True)
     category = CategorySerializer(read_only=True)
 
-    def create(self, validated_data):
-        if 'category' in validated_data:
-            category_data = validated_data.pop('category')
-            category = get_object_or_404(Category, slug=category_data['slug'])
-            title = Title.objects.create(**validated_data, category=category)
-        else:
-            title =  Title.objects.create(**validated_data)
-        return title
-
-    def update(self, instance, validated_data):
-        if 'category' in validated_data:
-            category_data = validated_data.pop('category')
-            category = get_object_or_404(Category, slug=category_data['slug'])
-            instance.category = category
-        return super().update(instance, validated_data)
-    
-
     class Meta:
-        fields = ['id', 'name', 'rating', 'genre', 'category', 'year']
+        fields = '__all__'
         model = Title
 
 
@@ -70,8 +59,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
     score = serializers.IntegerField(
         validators=[
-            MinValueValidator(1, message='The score must be at least 1'),
-            MaxValueValidator(10, message='The score should not be higher than 10')
+            MinValueValidator(
+                1, message='The score must be at least 1'),
+            MaxValueValidator(
+                10, message='The score should not be higher than 10')
         ]
     )
     title = serializers.PrimaryKeyRelatedField(read_only=True)

@@ -7,7 +7,8 @@ class DisablePutMethodMiddleware:
 
     def __call__(self, request):
         if request.method == 'PUT' and any(
-                path in request.path for path in ['/comments/', '/reviews/']):
+                path in request.path for path in [
+                    '/comments/', '/reviews/', '/titles/']):
             return JsonResponse(
                 {'detail': 'PUT method is not allowed on this resource.'},
                 status=status.HTTP_405_METHOD_NOT_ALLOWED
