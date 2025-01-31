@@ -21,6 +21,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         required=True,
         validators=[username_validator]
     )
+    
     class Meta:
         model = CustomUser
         fields = ('username', 'email')

@@ -19,8 +19,9 @@ class CategorySerializer(serializers.ModelSerializer):
                     'Category with that slug is already exists!')
         else:
             if Category.objects.filter(slug=value).exists():
-                    raise serializers.ValidationError(
-                        'Category with that slug is already exists!')
+                raise serializers.ValidationError(
+                    'Category with that slug is already exists!'
+                )
         return value
 
 
@@ -41,6 +42,7 @@ class GenreSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Genre with that slug is already exists!')
         return value
+
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, read_only=True)

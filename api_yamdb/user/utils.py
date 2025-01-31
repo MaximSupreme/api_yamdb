@@ -16,14 +16,16 @@ def customed_send_mail(email, confirmation_code):
         fail_silently=False,
     )
 
+
 def confirmation_code_generator():
     code = string.ascii_letters + string.digits
     return ''.join(secrets.choice(code) for _ in range(40))
 
+
 def username_validator(value):
     if not re.match(r'^[\w.@+-]+$', value):
         raise serializers.ValidationError(
-            '''Username can only contain letters, 
+            '''Username can only contain letters,
             numbers and signs @/./+/-/_'''
         )
     if value.lower() == 'me':

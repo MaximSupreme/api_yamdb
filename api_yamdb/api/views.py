@@ -34,6 +34,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         self.perform_create(serializer)
 
+
 class GenreViewSet(ListCreateDeleteViewset):
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
@@ -46,6 +47,7 @@ class GenreViewSet(ListCreateDeleteViewset):
         instance = get_object_or_404(models.Genre, slug=slug)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class CategoryViewSet(ListCreateDeleteViewset):
     queryset = models.Category.objects.all()
@@ -63,8 +65,10 @@ class CategoryViewSet(ListCreateDeleteViewset):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ReviewSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                        IsAdminModeratorAuthorOrReadOnly)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsAdminModeratorAuthorOrReadOnly
+    )
 
     def get_queryset(self):
         title = get_object_or_404(

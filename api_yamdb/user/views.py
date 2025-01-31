@@ -22,6 +22,7 @@ from user.utils import (
 
 CustomUser = get_user_model()
 
+
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -144,9 +145,13 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                     return Response(serializer.data, status=HTTPStatus.OK)
                 else:
                     return Response(
-                        {'detail': 'User with that username is already exists. '
-                                'Check your entered email.'},
-                        status=HTTPStatus.BAD_REQUEST)
+                        {
+                            'detail': 
+                            'User with that username is already exists. '
+                            'Check your entered email.'
+                        },
+                        status=HTTPStatus.BAD_REQUEST
+                    )
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(username=username, email=email)
                 confirmation_code = confirmation_code_generator()

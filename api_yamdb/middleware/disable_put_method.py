@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from rest_framework import status
 
+
 class DisablePutMethodMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
