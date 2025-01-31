@@ -131,8 +131,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status=HTTPStatus.OK)
             else:
                 return Response(
-                    {'detail': 'User with that email is already exists. '
-                    'Check your entered username.'},
+                    {
+                        'detail': (
+                            'User with that email is already exists. '
+                            'Check your entered username.'
+                            )
+                    },
                     status=HTTPStatus.BAD_REQUEST
                 )
         except CustomUser.DoesNotExist:
