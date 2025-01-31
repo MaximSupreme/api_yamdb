@@ -3,8 +3,6 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, permissions, viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from .filters import TitleFilter
 
 from .permissions import IsAdminModeratorAuthorOrReadOnly, IsAdminUserOrReadOnly
@@ -19,7 +17,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')).order_by('rating')
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAdminUserOrReadOnly]
-    #pagination_class = LimitOffsetPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 

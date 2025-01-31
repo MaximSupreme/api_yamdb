@@ -72,10 +72,6 @@ class Title(models.Model):
         null=True,
         blank=True
     )
-    # rating = models.DecimalField(
-    #     verbose_name='Рейтинг',
-    #     max_digits=3, decimal_places=1, null=True, blank=True
-    # )
     category = models.ForeignKey(
         verbose_name='Категория',
         to=Category,
