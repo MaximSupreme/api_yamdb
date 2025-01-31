@@ -132,8 +132,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             else:
                 return Response(
                     {'detail': 'User with that email is already exists. '
-                            'Check your entered username.'},
-                    status=HTTPStatus.BAD_REQUEST)
+                    'Check your entered username.'},
+                    status=HTTPStatus.BAD_REQUEST
+                )
         except CustomUser.DoesNotExist:
             try:
                 user = CustomUser.objects.get(username=username)
@@ -146,14 +147,16 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                 else:
                     return Response(
                         {
-                            'detail': 
+                            'detail':
                             'User with that username is already exists. '
                             'Check your entered email.'
                         },
                         status=HTTPStatus.BAD_REQUEST
                     )
             except CustomUser.DoesNotExist:
-                user = CustomUser.objects.create(username=username, email=email)
+                user = CustomUser.objects.create(
+                    username=username, email=email
+                )
                 confirmation_code = confirmation_code_generator()
                 user.confirmation_code = confirmation_code
                 user.save()
