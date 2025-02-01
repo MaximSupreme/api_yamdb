@@ -165,7 +165,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 user.save()
                 customed_send_mail(email, confirmation_code)
                 return attrs
-        return attrs
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
