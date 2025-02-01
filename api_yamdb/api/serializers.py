@@ -12,7 +12,7 @@ from user.utils import (
     username_validator,
     confirmation_code_generator,
     customed_send_mail
-    )
+)
 
 
 CustomUser = get_user_model()
@@ -141,7 +141,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 return attrs
             else:
                 raise serializers.ValidationError(
-                    'User with that email is already exists. Check your entered username.'
+                    'User with that email is already exists. '
+                    'Check your entered username.'
                 )
         except CustomUser.DoesNotExist:
             try:
@@ -154,7 +155,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                     return attrs
                 else:
                     raise serializers.ValidationError(
-                        'User with that username is already exists. Check your entered email.'
+                        'User with that username is already exists. '
+                        'Check your entered email.'
                     )
             except CustomUser.DoesNotExist:
                 user = CustomUser.objects.create(

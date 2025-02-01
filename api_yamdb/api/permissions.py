@@ -24,7 +24,7 @@ class IsAdminUserOrReadOnly(BasePermission):
 
 class IsAdmin(BasePermission):
     message = 'Access is allowed only to administrators.'
-    
+
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
