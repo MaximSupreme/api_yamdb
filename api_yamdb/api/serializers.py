@@ -34,7 +34,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True,)
-    rating = serializers.FloatField()
+    rating = serializers.FloatField(read_only=True)
     category = CategorySerializer()
 
     class Meta:
@@ -88,11 +88,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 f'A review of {title.name} is already exists!'
             )
         return value
-
-    def create(self, validated_data):
-        review = super().create(validated_data)
-        review.title.update_rating()
-        return review
 
     class Meta:
         fields = '__all__'

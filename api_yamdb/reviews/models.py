@@ -1,6 +1,5 @@
-from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
+from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR, MAX_STR_LENGTH
 from django.db import models
-from django.db.models import Avg
 
 from user.models import CustomUser
 from reviews.validators import validate_year
@@ -76,32 +75,29 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
         ordering = ['name']
 
-    def update_rating(self):
-        reviews = self.reviews.all()
-        if reviews.exists():
-            avg_rating = reviews.aggregate(
-                Avg('score')
-            )['score__avg']
-            self.rating = avg_rating
-            self.save()
-
     def __str__(self):
         return self.name
 
 
-class Review(models.Model):
+class AuthorTextModel(models.Model):
+    author = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='%(class)s',
+        verbose_name='Автор'
+    )
+    text = models.TextField(verbose_name='Текст')
+
+    class Meta:
+        abstract = True
+
+
+class Review(AuthorTextModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение'
-    )
-    text = models.TextField(verbose_name='Текст обзора')
-    author = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Автор'
     )
     score = models.IntegerField(
         verbose_name='Оценка',
@@ -123,22 +119,15 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:MAX_STR_LENGTH]
 
 
-class Comment(models.Model):
+class Comment(AuthorTextModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Обзор'
-    )
-    text = models.TextField(verbose_name='Текст комментария')
-    author = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Автор'
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации комментария',
@@ -152,4 +141,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:MAX_STR_LENGTH]

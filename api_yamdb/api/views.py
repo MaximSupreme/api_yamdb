@@ -5,7 +5,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -35,6 +35,7 @@ CustomUser = get_user_model()
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).order_by('rating')
+    http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = [IsAdminUserOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -57,6 +58,7 @@ class CategoryViewSet(SearchAndPermissionsMixin, ListCreateDeleteViewset):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ReviewSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsAdminModeratorAuthorOrReadOnly
@@ -77,6 +79,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsAdminModeratorAuthorOrReadOnly
