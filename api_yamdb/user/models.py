@@ -4,7 +4,8 @@ from django.db import models
 from api.constants import (
     MAX_LENGTH_FIRST_LAST_AND_USERNAME,
     MAX_STRING_CHAR, ROLE_ADMIN,
-    ROLE_MODERATOR, ROLE_USER, ROLES
+    ROLE_MODERATOR, ROLE_USER, ROLES,
+    MAX_ROLE_LENGTH
 )
 
 
@@ -25,7 +26,7 @@ class CustomUser(AbstractUser):
         max_length=MAX_STRING_CHAR
     )
     role = models.CharField(
-        max_length=60, choices=ROLES, default=ROLE_USER
+        max_length=MAX_ROLE_LENGTH, choices=ROLES, default=ROLE_USER
     )
     confirmation_code = models.CharField(
         max_length=MAX_STRING_CHAR, blank=True, null=True

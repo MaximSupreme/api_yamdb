@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from user.views import CustomUserViewSet
+from api.views import CustomUserViewSet
 from api.views import (
     CategoryViewSet,
     CommentViewSet,

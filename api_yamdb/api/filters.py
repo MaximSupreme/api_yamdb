@@ -1,6 +1,7 @@
 from django_filters.rest_framework import CharFilter, FilterSet
 
 from reviews.models import Title
+from user.models import CustomUser
 
 
 class TitleFilter(FilterSet):
@@ -11,3 +12,13 @@ class TitleFilter(FilterSet):
     class Meta:
         model = Title
         fields = ['year']
+
+
+class CustomUserFilter(FilterSet):
+    username = CharFilter(
+        field_name='username', lookup_expr='icontains'
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['username']

@@ -1,8 +1,15 @@
+from http import HTTPStatus
+
+import django_filters
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 import api.serializers as serializers
 import reviews.models as models
@@ -11,7 +18,17 @@ from api.filters import TitleFilter
 from api.permissions import (
     IsAdminModeratorAuthorOrReadOnly, IsAdminUserOrReadOnly
 )
-from user.permissions import IsAdminOrReadOnly
+from api.serializers import (
+    AdminUserSerializer,
+    CustomUserSerializer,
+    TokenSerializer,
+    UserRegistrationSerializer
+)
+from api.permissions import IsAdminOrReadOnly, IsAdmin
+from api.filters import CustomUserFilter
+
+
+CustomUser = get_user_model()
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -101,3 +118,76 @@ class CommentViewSet(viewsets.ModelViewSet):
             models.Review, id=self.kwargs.get('review_id')
         )
         serializer.save(author=self.request.user, review=review)
+
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = (IsAdmin,)
+    lookup_field = 'username'
+    filter_backends = (
+        django_filters.rest_framework.DjangoFilterBackend,
+        filters.SearchFilter
+    )
+    search_fields = ('username',)
+    filterset_class = CustomUserFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_permissions(self):
+        if self.action in ('signup', 'token'):
+            return []
+        if self.action == 'me':
+            return [IsAuthenticated()]
+        return [IsAdmin()]
+
+    def get_serializer_class(self):
+        if self.action == 'signup':
+            return UserRegistrationSerializer
+        if self.action in ['create', 'update', 'partial_update']:
+            return AdminUserSerializer
+        return CustomUserSerializer
+
+    def get_object(self):
+        if self.action == 'me':
+            return self.request.user
+        username = self.kwargs.get('username')
+        return get_object_or_404(CustomUser, username=username)
+
+    @action(
+        detail=False,
+        methods=['get', 'patch', 'delete'],
+        permission_classes=[IsAuthenticated],
+        url_path='me'
+    )
+    def me(self, request):
+        if request.method == 'DELETE':
+            return Response(status=HTTPStatus.METHOD_NOT_ALLOWED)
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
+            return Response(serializer.data)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def signup(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=HTTPStatus.OK)
+
+    @action(detail=False, methods=['post'])
+    def token(self, request):
+        serializer = TokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {
+                'token': str(serializer.validated_data['token'])
+            },
+            status=HTTPStatus.OK
+        )
