@@ -64,8 +64,7 @@ class Title(models.Model):
         verbose_name='Жанр',
         to=Genre,
         blank=True,
-        through='TitleGenre',
-        related_name='произведения',
+        related_name='title',
     )
     description = models.TextField(
         verbose_name='Описание',
@@ -76,7 +75,7 @@ class Title(models.Model):
         verbose_name='Категория',
         to=Category,
         on_delete=models.CASCADE,
-        related_name='произведения',
+        related_name='title',
         null=True,
         blank=True,
     )
@@ -97,23 +96,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class TitleGenre(models.Model):
-    title = models.ForeignKey(
-        to=Title,
-        on_delete=models.CASCADE,
-        verbose_name='Произведение'
-    )
-    genre = models.ForeignKey(
-        to=Genre,
-        on_delete=models.CASCADE,
-        verbose_name='Жанр'
-    )
-
-    class Meta:
-        verbose_name = 'Связь произведения и жанра'
-        verbose_name_plural = 'Связи произведений и жанров'
 
 
 class Review(models.Model):

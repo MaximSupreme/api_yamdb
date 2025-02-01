@@ -39,31 +39,14 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
-    def perform_create(self, serializer):
-        category = get_object_or_404(
-            models.Category, slug=self.request.data.get('category')
-        )
-        genre = models.Genre.objects.filter(
-            slug__in=self.request.data.getlist('genre')
-        )
-        serializer.save(category=category, genre=genre)
-
-    def perform_update(self, serializer):
-        self.perform_create(serializer)
-
 
 class GenreViewSet(ListCreateDeleteViewset):
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
+    lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
-
-    def destroy(self, request, *args, **kwargs):
-        slug = kwargs.get('pk')
-        instance = get_object_or_404(models.Genre, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CategoryViewSet(ListCreateDeleteViewset):

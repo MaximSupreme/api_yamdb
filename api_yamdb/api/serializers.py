@@ -20,37 +20,12 @@ class CategorySerializer(serializers.ModelSerializer):
         exclude = ['id']
         model = Category
 
-    def validate_slug(self, value):
-        if self.instance:
-            if (Category.objects.filter(slug=value)
-                    .exclude(id=self.instance.id).exists()):
-                raise serializers.ValidationError(
-                    'Category with that slug is already exists!')
-        else:
-            if Category.objects.filter(slug=value).exists():
-                raise serializers.ValidationError(
-                    'Category with that slug is already exists!'
-                )
-        return value
-
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         exclude = ['id']
         model = Genre
-
-    def validate_slug(self, value):
-        if self.instance:
-            if (Genre.objects.filter(slug=value)
-                    .exclude(id=self.instance.id).exists()):
-                raise serializers.ValidationError(
-                    'Genre with that slug is already exists!')
-        else:
-            if Genre.objects.filter(slug=value).exists():
-                raise serializers.ValidationError(
-                    'Genre with that slug is already exists!')
-        return value
 
 
 class TitleSerializer(serializers.ModelSerializer):
