@@ -8,7 +8,11 @@ from api.constants import (
     MAX_LENGTH_FIRST_LAST_AND_USERNAME,
     MAX_STRING_CHAR, ROLE_USER, ROLES
 )
-from user.utils import username_validator, confirmation_code_generator, customed_send_mail
+from user.utils import (
+    username_validator,
+    confirmation_code_generator,
+    customed_send_mail
+    )
 
 
 CustomUser = get_user_model()
@@ -30,7 +34,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True,)
-    # rating = serializers.FloatField(read_only=True)
+    rating = serializers.FloatField()
     category = CategorySerializer()
 
     class Meta:
@@ -45,7 +49,7 @@ class TitlePostSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all(),
         slug_field='slug',
     )
-    Category = serializers.SlugRelatedField(
+    category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug',
     )
