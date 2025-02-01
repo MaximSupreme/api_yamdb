@@ -24,8 +24,9 @@ from api.serializers import (
     TokenSerializer,
     UserRegistrationSerializer
 )
-from api.permissions import IsAdminOrReadOnly, IsAdmin
+from api.permissions import IsAdmin
 from api.filters import CustomUserFilter
+from api.mixins import SearchAndPermissionsMixin
 
 
 CustomUser = get_user_model()
@@ -34,33 +35,24 @@ CustomUser = get_user_model()
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).order_by('rating')
-    serializer_class = serializers.TitleSerializer
     permission_classes = [IsAdminUserOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'GET':
+            return serializers.TitleGetSerializer
+        return serializers.TitlePostSerializer
 
-class GenreViewSet(ListCreateDeleteViewset):
+
+class GenreViewSet(SearchAndPermissionsMixin, ListCreateDeleteViewset):
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    permission_classes = (IsAdminOrReadOnly,)
 
 
-class CategoryViewSet(ListCreateDeleteViewset):
+class CategoryViewSet(SearchAndPermissionsMixin, ListCreateDeleteViewset):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    permission_classes = (IsAdminOrReadOnly,)
-
-    def destroy(self, request, *args, **kwargs):
-        slug = kwargs.get('pk')
-        instance = get_object_or_404(models.Category, slug=slug)
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

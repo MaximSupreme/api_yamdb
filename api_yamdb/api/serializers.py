@@ -28,10 +28,27 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True, read_only=True)
-    rating = serializers.FloatField(read_only=True)
-    category = CategorySerializer(read_only=True)
+class TitleGetSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True,)
+    # rating = serializers.FloatField(read_only=True)
+    category = CategorySerializer()
+
+    class Meta:
+        fields = '__all__'
+        read_only_fields = ('category', 'rating', 'genre')
+        model = Title
+
+
+class TitlePostSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+    )
+    Category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug',
+    )
 
     class Meta:
         fields = '__all__'

@@ -1,14 +1,12 @@
-from datetime import datetime as dt
-
-from django.core.validators import MaxValueValidator
+from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
 from django.db import models
 from django.db.models import Avg
 
-from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR
 from user.models import CustomUser
+from reviews.validators import validate_year
 
 
-class Genre(models.Model):
+class NameSlugModel(models.Model):
     name = models.CharField(
         verbose_name='Жанр',
         max_length=MAX_STRING_CHAR
@@ -20,6 +18,12 @@ class Genre(models.Model):
     )
 
     class Meta:
+        abstract = True
+
+
+class Genre(NameSlugModel):
+
+    class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -27,16 +31,7 @@ class Genre(models.Model):
         return self.name
 
 
-class Category(models.Model):
-    name = models.CharField(
-        verbose_name='Категория',
-        max_length=MAX_STRING_CHAR
-    )
-    slug = models.SlugField(
-        verbose_name='Слаг',
-        max_length=MAX_SLUG_CHAR,
-        unique=True,
-    )
+class Category(NameSlugModel):
 
     class Meta:
         ordering = ['name']
@@ -54,11 +49,7 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
-        validators=[
-            MaxValueValidator(
-                limit_value=dt.now().year
-            )
-        ]
+        validators=[validate_year]
     )
     genre = models.ManyToManyField(
         verbose_name='Жанр',
