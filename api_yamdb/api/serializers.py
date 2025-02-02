@@ -166,7 +166,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'User with that email is already exists. '
                     'Check your entered username.'
-                    )
+                )
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
