@@ -143,8 +143,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             customed_send_mail(email, confirmation_code)
             return attrs
         user = next(
-            (user for user in users
-            if user.username == username and user.email == email),
+            (
+                user
+                for user in users
+                if user.username == username and user.email == email
+            ),
             None
         )
         if user:
@@ -162,7 +165,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             if user.email == email:
                 raise serializers.ValidationError(
                     'User with that email is already exists. '
-                        'Check your entered username.'
+                    'Check your entered username.'
                     )
 
 
