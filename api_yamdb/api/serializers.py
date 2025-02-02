@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import serializers, exceptions, validators
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -131,42 +132,35 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         username = attrs['username']
         email = attrs['email']
-        try:
-            user = CustomUser.objects.get(email=email)
+        users = CustomUser.objects.filter(Q(username=username) | Q(email=email))
+        if not users:
+            user = CustomUser.objects.create(username=username, email=email)
+            confirmation_code = confirmation_code_generator()
+            user.confirmation_code = confirmation_code
+            user.save()
+            customed_send_mail(email, confirmation_code)
+            return attrs
+        user = next(
+            (user for user in users if user.username == username and user.email == email),
+            None
+        )
+        if user:
+            confirmation_code = confirmation_code_generator()
+            user.confirmation_code = confirmation_code
+            user.save()
+            customed_send_mail(email, confirmation_code)
+            return attrs
+        for user in users:
             if user.username == username:
-                confirmation_code = confirmation_code_generator()
-                user.confirmation_code = confirmation_code
-                user.save()
-                customed_send_mail(email, confirmation_code)
-                return attrs
-            else:
                 raise serializers.ValidationError(
-                    'User with that email is already exists. '
-                    'Check your entered username.'
-                )
-        except CustomUser.DoesNotExist:
-            try:
-                user = CustomUser.objects.get(username=username)
-                if user.email == email:
-                    confirmation_code = confirmation_code_generator()
-                    user.confirmation_code = confirmation_code
-                    user.save()
-                    customed_send_mail(email, confirmation_code)
-                    return attrs
-                else:
-                    raise serializers.ValidationError(
                         'User with that username is already exists. '
                         'Check your entered email.'
                     )
-            except CustomUser.DoesNotExist:
-                user = CustomUser.objects.create(
-                    username=username, email=email
-                )
-                confirmation_code = confirmation_code_generator()
-                user.confirmation_code = confirmation_code
-                user.save()
-                customed_send_mail(email, confirmation_code)
-                return attrs
+            if user.email == email:
+                raise serializers.ValidationError(
+                    'User with that email is already exists. '
+                        'Check your entered username.'
+                    )
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
