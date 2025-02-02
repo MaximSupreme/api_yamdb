@@ -159,9 +159,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         for user in users:
             if user.username == username:
                 raise serializers.ValidationError(
-                        'User with that username is already exists. '
-                        'Check your entered email.'
-                    )
+                    'User with that username is already exists. '
+                    'Check your entered email.'
+                )
             if user.email == email:
                 raise serializers.ValidationError(
                     'User with that email is already exists. '
