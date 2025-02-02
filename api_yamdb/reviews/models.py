@@ -54,7 +54,7 @@ class Title(models.Model):
         verbose_name='Жанр',
         to=Genre,
         blank=True,
-        related_name='title',
+        related_name='titles',
     )
     description = models.TextField(
         verbose_name='Описание',
@@ -65,7 +65,7 @@ class Title(models.Model):
         verbose_name='Категория',
         to=Category,
         on_delete=models.CASCADE,
-        related_name='title',
+        related_name='titles',
         null=True,
         blank=True,
     )
