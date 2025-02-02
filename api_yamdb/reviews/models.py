@@ -1,8 +1,8 @@
-from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR, MAX_STR_LENGTH
 from django.db import models
 
-from user.models import CustomUser
+from api.constants import MAX_SLUG_CHAR, MAX_STRING_CHAR, MAX_STR_LENGTH
 from reviews.validators import validate_year
+from user.models import CustomUser
 
 
 class NameSlugModel(models.Model):
@@ -79,7 +79,7 @@ class Title(models.Model):
         return self.name
 
 
-class AuthorTextModel(models.Model):
+class BaseReviewCommentModel(models.Model):
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -87,12 +87,17 @@ class AuthorTextModel(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Текст')
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         abstract = True
 
 
-class Review(AuthorTextModel):
+class Review(BaseReviewCommentModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -102,10 +107,6 @@ class Review(AuthorTextModel):
     score = models.IntegerField(
         verbose_name='Оценка',
         null=True
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True
     )
 
     class Meta:
@@ -122,17 +123,12 @@ class Review(AuthorTextModel):
         return self.text[:MAX_STR_LENGTH]
 
 
-class Comment(AuthorTextModel):
+class Comment(BaseReviewCommentModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Обзор'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации комментария',
-        auto_now_add=True,
-        db_index=True
     )
 
     class Meta:
