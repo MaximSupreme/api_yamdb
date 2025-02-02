@@ -15,7 +15,6 @@ class TitleAdmin(admin.ModelAdmin):
     get_genres.short_description = "Жанры"
 
 
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')

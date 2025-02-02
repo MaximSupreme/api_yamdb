@@ -132,7 +132,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         username = attrs['username']
         email = attrs['email']
-        users = CustomUser.objects.filter(Q(username=username) | Q(email=email))
+        users = CustomUser.objects.filter(
+            Q(username=username) | Q(email=email)
+        )
         if not users:
             user = CustomUser.objects.create(username=username, email=email)
             confirmation_code = confirmation_code_generator()
@@ -141,7 +143,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             customed_send_mail(email, confirmation_code)
             return attrs
         user = next(
-            (user for user in users if user.username == username and user.email == email),
+            (user for user in users
+            if user.username == username and user.email == email),
             None
         )
         if user:
