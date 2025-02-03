@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 from rest_framework import serializers, exceptions, validators
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -12,7 +11,6 @@ from api.constants import (
 from user.utils import (
     username_validator,
     confirmation_code_generator,
-    customed_send_mail
 )
 
 
