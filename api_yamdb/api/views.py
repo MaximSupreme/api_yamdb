@@ -27,6 +27,7 @@ from api.serializers import (
 from api.permissions import IsAdmin
 from api.filters import CustomUserFilter
 from api.mixins import SearchAndPermissionsMixin
+from user.utils import customed_send_mail, confirmation_code_generator
 
 
 CustomUser = get_user_model()
@@ -157,6 +158,16 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def signup(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        email = serializer.validated_data['email']
+        user, _ = CustomUser.objects.get_or_create(
+            username=username,
+            email=email
+        )
+        confirmation_code = confirmation_code_generator()
+        user.confirmation_code = confirmation_code
+        user.save()
+        customed_send_mail(email, confirmation_code)
         return Response(serializer.data, status=HTTPStatus.OK)
 
     @action(detail=False, methods=['post'])

@@ -129,44 +129,20 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate(self, attrs):
-        username = attrs['username']
-        email = attrs['email']
-        users = CustomUser.objects.filter(
-            Q(username=username) | Q(email=email)
-        )
-        if not users:
-            user = CustomUser.objects.create(username=username, email=email)
-            confirmation_code = confirmation_code_generator()
-            user.confirmation_code = confirmation_code
-            user.save()
-            customed_send_mail(email, confirmation_code)
-            return attrs
-        user = next(
-            (
-                user
-                for user in users
-                if user.username == username and user.email == email
-            ),
-            None
-        )
-        if user:
-            confirmation_code = confirmation_code_generator()
-            user.confirmation_code = confirmation_code
-            user.save()
-            customed_send_mail(email, confirmation_code)
-            return attrs
-        for user in users:
-            if user.username == username:
-                raise serializers.ValidationError(
-                    'User with that username is already exists. '
-                    'Check your entered email.'
-                )
-            if user.email == email:
-                raise serializers.ValidationError(
-                    'User with that email is already exists. '
-                    'Check your entered username.'
-                )
+    def validate(self, data):
+        username = data.get('username')
+        email = data.get('email')
+        if CustomUser.objects.filter(username=username, email=email).exists():
+            return data
+        if CustomUser.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                {'email': 'This email is already in use by another user.'}
+            )
+        if CustomUser.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                {'username': 'This username is already taken.'}
+            )
+        return data
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
